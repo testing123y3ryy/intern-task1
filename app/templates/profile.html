@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block cst %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock cst %}
+
+
+{% block content %}
+{% for message in messages  %}
+      <div id="mydiv" class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <strong>Message : </strong> {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+  {% endfor %}
+
+<div class="wrapper">
+  <div class="left">
+    <img src="{{ person.image.url }}" alt="user" width="100">
+    <h4 style="font-size:153%;">{{person.first_name}} {{person.last_name}}</h4>
+    <p>{% if person.DorP == '1' %} Patient {% else %} Doctor {% endif %}</p>
+  </div>
+
+  <div class="right">
+    <div class="info">
+      <h3>Profile</h3>
+      <div class="info_data">
+        <div class="data">
+          <h4>Username</h4>
+          <p>@{{person.username}}</p>
+        </div>
+        <div class="data">
+          <h4>Email</h4>
+          <p>{{person.email}}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="projects">
+      <h3>Location</h3>
+      <div class="projects_data">
+        <div class="data">
+          <h4>State</h4>
+          <p>{{person.state}}</p>
+        </div>
+        <div class="data">
+          <h4>City</h4>
+          <p>{{person.city}} {{person.pincode}}</p>
+        </div>
+      </div>
+    </div>
+    <div class="info">
+      <h3>Address</h3>
+      <div class="info_data">
+        <div class="data">
+          <h4>Address</h4>
+          <p>{{person.line1}}</p>
+        </div>
+        <div class="data">
+          <h4></h4>
+          <p></p>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+</div>
+{% endblock %}
