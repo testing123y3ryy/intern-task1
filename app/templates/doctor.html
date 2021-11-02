@@ -8,6 +8,7 @@
     <title>Admin</title>
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Doctors dashboard</title>
 </head>
 
 <body>
@@ -21,12 +22,24 @@
         <div class="sidebar-menu">
             <ul>
                 <li>
-                    <a href="" class="active"><span class="las la-home"></span>
+                    <a href="{% url 'profile' doc.id %}"><span class="las la-book-medical"></span>
                     <span>Profile</span></a>
                 </li>
                 <li>
-                    <a href="{% url 'profile' doc.id %}"><span class="las la-book-medical"></span>
-                    <span>Patients</span></a>
+                    <a href="{% url 'addpost' %}"><span class="las la-book-medical"></span>
+                    <span>Add Post</span></a>
+                </li>
+                <li>
+                    <a href="{% url 'draftpost' request.session.patient %}"><span class="las la-book-medical"></span>
+                    <span>Views draft Post</span></a>
+                </li>
+                <li>
+                    <a href="{% url 'viewallpostbydoctor' %}"><span class="las la-book-medical"></span>
+                    <span>View all post by me</span></a>
+                </li>
+                <li>
+                    <a href="{% url 'patientpostview' %}"><span class="las la-book-medical"></span>
+                    <span>Views all Post</span></a>
                 </li>
                 <li>
                     <a href="{% url 'logout' %}"><span class="las la-arrow-right"></span>

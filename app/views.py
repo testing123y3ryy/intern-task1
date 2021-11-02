@@ -1,11 +1,14 @@
+from django.db.models.fields import PositiveSmallIntegerField
 from django.shortcuts import render, redirect , HttpResponseRedirect
 from django.contrib.auth.hashers import make_password , check_password
-from .models import Patient
+from .models import Patient, Post , Category
 from django.views import View
 import random
 from .middlewares.auth import auth_middleware
 from django.contrib import messages
-
+from django.db.models import Q
+from slugify import slugify
+from django.core.paginator import Paginator
 
 
 class Index(View):
@@ -119,6 +122,7 @@ class Login(View):
         if patient:
             flag = check_password(password, patient.password)
             if flag:
+                
                 request.session['patient'] = patient.id
 
                 if Login.return_url:
@@ -139,6 +143,7 @@ class Login(View):
         print(email, password)
 
         return render(request, 'login.html', {'error': error_message})
+
 
 def logout(request):
     request.session.clear()
@@ -168,3 +173,93 @@ def profile(request,id):
     print(len(doctors)-3)
     ran = random.randint(0, len(doctors))
     return render(request, 'profile.html', {'ran':ran, 'doctors':doctors , 'person':person })
+
+def addpost(request):
+    categories = Category.objects.all()
+    if request.method=='POST':
+        if len(request.FILES) != 0:
+            image = request.FILES['image']
+        title = request.POST.get('text')
+        user = request.POST.get('user')
+        if title:
+            s = slugify(title)
+            slug = s
+        cat= request.POST.get('category')
+        category = Category.objects.filter(title=cat).first()
+        summary = request.POST.get('summary')
+        content = request.POST.get('content')
+        status = request.POST.get('status')
+        
+        post = Post(title=title, slug=slug, status=status, category=category, picture=image, summary=summary, content=content, author=user)
+        post.save()
+        messages.success(request, 'Post has been added successfully')
+        return redirect('addpost')
+
+    else:
+
+        return render(request, 'addpost.html', {'categories':categories})
+
+
+def editpost(request, postid):
+    categories = Category.objects.all()
+    editpost = Post.objects.filter(id=postid).first()
+
+    if request.method=='POST':
+        title = request.POST.get('text')
+        cat= request.POST.get('category')
+        category = Category.objects.filter(title=cat).first()
+        summary = request.POST.get('summary')
+        content = request.POST.get('content')
+        status = request.POST.get('status')
+
+        editpost.title=title
+        editpost.category=category
+        editpost.summary=summary
+        editpost.content=content
+        editpost.status=status
+
+        editpost.save()
+        messages.success(request, 'Post has been updated')
+        return redirect('draftpost', request.session.get('patient'))
+
+    return render(request, 'edit.html', {'editpost':editpost, 'categories':categories})
+
+def deletepost(request, postid):
+    deletepost = Post.objects.filter(id=postid)
+    deletepost.delete()
+    messages.success(request, 'Post has been deleted deleted')
+    return redirect('draftpost', request.session.get('patient'))
+
+def viewallpostbydoctor(request):
+    categories = Category.objects.all()
+    allpost = Post.objects.filter(Q(author=request.session.get('patient')) & Q(status='published'))
+
+    return render(request, 'viewallpost.html', {'publishpost':allpost, 'categories':categories})
+
+def viewalldraftpost(request , userid):
+    categories = Category.objects.all()
+    draftpost = Post.objects.filter(Q(status='draft') & Q(author=userid))
+
+    return render(request, 'draftpost.html', {'publishpost':draftpost, 'categories':categories})
+
+def fullview(request, the_slug):
+    categories = Category.objects.all()
+    singlepost= Post.objects.filter(slug=the_slug).first()
+    cats = Category.objects.all()
+    return render(request, 'fullview.html', {"singlepost":singlepost , 'cats':cats, 'categories':categories})
+
+def patientpostview(request):
+    categories = Category.objects.all()
+    publishpost = Post.objects.filter(status='published').order_by('-id')
+    paginator = Paginator(publishpost, 6)
+    page_number = request.GET.get('page')
+    publishpost = paginator.get_page(page_number)
+    
+    
+    return render(request, 'patientpostview.html', {'publishpost':publishpost, 'categories':categories})
+
+def allpostbycategory(request, catid):
+    categories = Category.objects.all()
+    cat = Category.objects.filter(id=catid).first()
+    publishpost = Post.objects.filter(category=cat)
+    return render(request,'catpost.html', {'publishpost':publishpost, 'catname':cat.title , 'categories':categories})

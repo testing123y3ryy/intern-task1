@@ -1,6 +1,7 @@
 from django.db import  models
 from django.core.validators import MinLengthValidator
 import datetime
+from django.utils.timezone import now
 import os
 
 def filepath(request, filename):
@@ -49,4 +50,29 @@ class Patient(models.Model):
     def __str__(self):
         return self.first_name +" " + self.last_name
 
+STATUS_CHOICES = (
+	('draft','Draft'),
+	('published', 'Published'),
+)
 
+
+class Category(models.Model):
+	title = models.CharField(max_length=100, verbose_name='Title')
+		
+	def __str__(self):
+		return self.title
+
+
+class Post(models.Model):
+	title = models.CharField(max_length=255)
+	slug = models.SlugField(unique=True)
+	status = models.CharField(choices=STATUS_CHOICES, default='draft', max_length=10)
+	publication_date = models.DateTimeField(default=now)
+	category = models.ForeignKey(Category, on_delete=models.CASCADE)
+	picture = models.ImageField(upload_to=filepath, null=True , blank=True)
+	summary = models.TextField(max_length=1000)
+	content = models.TextField(max_length=1000)
+	author = models.CharField(max_length=30)
+		
+	def __str__(self):
+		return self.title

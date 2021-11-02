@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
-{% block content %}
+
 {% load static %}
+{% block title %}Signup{% endblock title %}
+{% block content %}
 
       {% for message in messages  %}
       <div id="mydiv" class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -37,6 +39,7 @@
                 {% endif %}
 
                 <!-- image-->
+
                 <div class="form-group">
                     <label for="">Image</label>
                     <input type="file" name="image"
